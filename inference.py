@@ -114,6 +114,9 @@ parser.add_argument('--mask_feathering', default=151, type=int,
 parser.add_argument('--quality', type=str, help='Choose between Fast, Improved, Enhanced and Experimental', 
                                 default='Fast')            
 
+parser.add_argument('--tempdir', type=str, help='temp work path', 
+                                default='tempdir')   
+
 with open(os.path.join('checkpoints','predictor.pkl'), 'rb') as f:
     predictor = pickle.load(f)
 
@@ -430,7 +433,7 @@ def face_detect(images, results_file='last_detected_face.pkl'):
 
     for image, rect in tqdm(zip(images, face_rect(images)), total=len(images), desc="detecting face in every frame", ncols=100):
         if rect is None:
-            cv2.imwrite('temp/faulty_frame.jpg', image) # check this frame where the face was not detected.
+            cv2.imwrite(os.path.join(args.tempdir,"faulty_frame.jpg"), image) # check this frame where the face was not detected.
             raise ValueError('Face not detected! Ensure the video contains a face in all the frames.')
 
         y1 = max(0, rect[1] - pady1)
@@ -454,10 +457,14 @@ def datagen(frames, mels):
     img_batch, mel_batch, frame_batch, coords_batch = [], [], [], []
     print("\r" + " " * 100, end="\r")
     if args.box[0] == -1:
+        import secrets
+        facedresult = secrets.token_hex(4)+"_"+"last_detected_face.pkl"
         if not args.static:
-            face_det_results = face_detect(frames) # BGR2RGB for CNN face detection
+            face_det_results = face_detect(frames,facedresult) # BGR2RGB for CNN face detection
         else:
-            face_det_results = face_detect([frames[0]])
+            face_det_results = face_detect([frames[0]],facedresult)
+        if os.path.isfile(facedresult):
+            os.remove(facedresult)
     else:
         print('Using the specified bounding box instead of face detection...')
         y1, y2, x1, x2 = args.box
@@ -556,9 +563,9 @@ def main():
         subprocess.check_call([
               "ffmpeg", "-y", "-loglevel", "error",
               "-i", args.audio,
-              "temp/temp.wav",
+              os.path.join(args.tempdir,"temp.wav"),
           ])
-        args.audio = 'temp/temp.wav'
+        args.audio = os.path.join(args.tempdir,"temp.wav")
         
     print('analysing audio...')
     wav = audio.load_wav(args.audio, 16000)
@@ -606,7 +613,7 @@ def main():
           print("Starting...")
           frame_h, frame_w = full_frames[0].shape[:-1]
           fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Be sure to use lower case
-          out = cv2.VideoWriter('temp/result.mp4', fourcc, fps, (frame_w, frame_h))
+          out = cv2.VideoWriter(os.path.join(args.tempdir,"result.mp4"), fourcc, fps, (frame_w, frame_h))
 
         img_batch = torch.FloatTensor(np.transpose(img_batch, (0, 3, 1, 2))).to('cuda')
         mel_batch = torch.FloatTensor(np.transpose(mel_batch, (0, 3, 1, 2))).to('cuda')
@@ -649,7 +656,7 @@ def main():
                 f, last_mask = Experimental(f, of,run_params)
 
             if str(args.preview_settings) == 'True':
-              cv2.imwrite('temp/preview.jpg', f)
+              cv2.imwrite(os.path.join(args.tempdir,"preview.jpg"), f)
 
             else:
               out.write(f)
@@ -661,7 +668,7 @@ def main():
 
       subprocess.check_call([
         "ffmpeg", "-y", "-loglevel", "error",
-        "-i", "temp/result.mp4",
+        "-i", os.path.join(args.tempdir,"result.mp4"),
         "-i", args.audio,
         "-c:v", "h264_nvenc",
         args.outfile ,

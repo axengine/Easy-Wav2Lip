@@ -1,0 +1,42 @@
+{
+    "face": [
+      {
+        "name": "Face 1",
+        "path": "static/face/1.mp4"
+      },
+      {
+        "name": "Face 2",
+        "path": "static/face/2.mp4"
+      },
+      {
+        "name": "Face 3",
+        "path": "static/face/3.mp4"
+      },
+      {
+        "name": "Face 4",
+        "path": "static/face/4.mp4"
+      }
+    ],
+    "speaker": [
+      {
+        "name": "Male",
+        "path": "static/speaker/male.wav"
+      },
+      {
+        "name": "Female",
+        "path": "static/speaker/female.wav"
+      },
+      {
+        "name": "Speaker 1",
+        "path": "static/speaker/1.wav"
+      },
+      {
+        "name": "Speaker 2",
+        "path": "static/speaker/2.wav"
+      },
+      {
+        "name": "Speaker CCTV",
+        "path": "static/speaker/cctvaudio.wav"
+      }
+    ]
+  }

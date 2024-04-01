@@ -1,3 +1,8 @@
+## New features
+- REST API:python app.py
+- use TTS:tts.py
+- inference concurrency:run_concurrency.py
+
 ## Contents:
 1. [Introduction](https://github.com/anothermartz/Easy-Wav2Lip?tab=readme-ov-file#easy-wav2lip-improves-wav2lip-video-lipsyncing-making-it)
 2. [Google Colab version (free cloud computing in-browser)](https://github.com/anothermartz/Easy-Wav2Lip?tab=readme-ov-file#google-colab)
